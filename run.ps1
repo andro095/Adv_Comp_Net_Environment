@@ -2,7 +2,7 @@
 .SYNOPSIS
     Mininet Lab Manager Help
 .DESCRIPTION
-    This script automates building and running your Mininet Docker containers in PowerShell.
+    This script automates building, running, and connecting to your Mininet Docker containers in PowerShell.
 #>
 
 param (
@@ -15,7 +15,7 @@ param (
 
 function Show-Help {
     Write-Host "=== Mininet Lab Manager Help ===" -ForegroundColor Cyan
-    Write-Host "This script automates building and running your Mininet Docker containers."
+    Write-Host "This script automates building, running, and connecting to your Mininet Docker containers."
     Write-Host ""
     Write-Host "Usage:"
     Write-Host "  .\run.ps1 <command> [arguments]"
@@ -24,11 +24,14 @@ function Show-Help {
     Write-Host "  build            Builds the Docker image ('mymininet:latest') from the local Dockerfile."
     Write-Host "  run <lab-name>   Starts a container for the specified lab. Automatically mounts a"
     Write-Host "                   local output folder named '<lab-name>-output' to save your work."
+    Write-Host "  exec <lab-name>  Opens a new bash shell inside an ALREADY RUNNING lab container."
+    Write-Host "                   Useful for running secondary commands (like tcpdump) in a new tab."
     Write-Host "  help, -h, --help Shows this help menu."
     Write-Host ""
     Write-Host "Examples:"
     Write-Host "  .\run.ps1 build"
     Write-Host "  .\run.ps1 run lab-1"
+    Write-Host "  .\run.ps1 exec lab-1"
     Write-Host "================================" -ForegroundColor Cyan
 }
 
@@ -60,6 +63,19 @@ function Run-Lab {
     docker run -it --rm --privileged --name "$Name" -v "$VolumeMount" mymininet:latest
 }
 
+function Exec-Lab {
+    param([string]$Name)
+
+    if ([string]::IsNullOrWhiteSpace($Name)) {
+        Write-Host "Error: You must provide a lab name to connect to." -ForegroundColor Red
+        Write-Host "Type '.\run.ps1 help' for usage instructions."
+        exit 1
+    }
+
+    Write-Host "[*] Connecting to running lab: $Name" -ForegroundColor Yellow
+    docker exec -it "$Name" bash
+}
+
 # Main command routing
 switch -Regex ($Action.ToLower()) {
     "^build$" {
@@ -67,6 +83,9 @@ switch -Regex ($Action.ToLower()) {
     }
     "^run$" {
         Run-Lab -Name $LabName
+    }
+    "^exec$" {
+        Exec-Lab -Name $LabName
     }
     "^(help|-h|--help)$" {
         Show-Help

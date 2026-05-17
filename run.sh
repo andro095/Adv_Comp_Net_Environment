@@ -3,7 +3,7 @@
 # Function to display help instructions
 show_help() {
     echo "=== Mininet Lab Manager Help ==="
-    echo "This script automates building and running your Mininet Docker containers."
+    echo "This script automates building, running, and connecting to your Mininet Docker containers."
     echo ""
     echo "Usage:"
     echo "  bash run.sh <command> [arguments]"
@@ -12,11 +12,14 @@ show_help() {
     echo "  build            Builds the Docker image ('mymininet:latest') from the local Dockerfile."
     echo "  run <lab-name>   Starts a container for the specified lab. Automatically mounts a"
     echo "                   local output folder named '<lab-name>-output' to save your work."
+    echo "  exec <lab-name>  Opens a new bash shell inside an ALREADY RUNNING lab container."
+    echo "                   Useful for running secondary commands (like tcpdump) in a new tab."
     echo "  help, -h, --help Shows this help menu."
     echo ""
     echo "Examples:"
     echo "  bash run.sh build"
     echo "  bash run.sh run lab-1"
+    echo "  bash run.sh exec lab-1"
     echo "================================"
 }
 
@@ -56,6 +59,20 @@ run_lab() {
     esac
 }
 
+# Function to connect to a running lab
+exec_lab() {
+    local lab_name="$1"
+
+    if [ -z "$lab_name" ]; then
+        echo "Error: You must provide a lab name to connect to."
+        echo "Type 'bash run.sh help' for usage instructions."
+        exit 1
+    fi
+
+    echo "[*] Connecting to running lab: $lab_name"
+    docker exec -it "$lab_name" bash
+}
+
 # Main command routing
 case "$1" in
     build)
@@ -63,6 +80,9 @@ case "$1" in
         ;;
     run)
         run_lab "$2"
+        ;;
+    exec)
+        exec_lab "$2"
         ;;
     help|-h|--help)
         show_help

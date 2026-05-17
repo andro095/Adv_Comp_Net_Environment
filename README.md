@@ -6,8 +6,8 @@ A fully containerized Mininet environment with Open vSwitch and Python data scie
 
 * **`Dockerfile`**: The blueprint for the Mininet image. It uses `ubuntu:22.04` as a base and installs Mininet, Open vSwitch, networking tools (`tshark`, `iperf3`, `tcpdump`, `ping`), and a suite of Python data science libraries (`pandas`, `scikit-learn`, `tensorflow`, etc.). It also uses `dos2unix` to ensure cross-platform script compatibility.
 * **`entrypoint.sh`**: The container's startup script. It safely initializes the Open vSwitch database, spins up the OVS daemons (`ovsdb-server` and `ovs-vswitchd`) in the background, outputs their status, and drops you into a ready-to-use bash shell.
-* **`run.sh`**: A Bash helper script to automate building the image and deploying containers. It automatically detects your operating system and mounts a local volume for your lab outputs.
-* **`run.ps1`**: The native Windows PowerShell equivalent of `run.sh`. It performs the exact same automation (building and running) but uses native Windows pathing.
+* **`run.sh`**: A Bash helper script to automate building the image, deploying containers, and connecting to running labs. It automatically detects your operating system and mounts a local volume for your lab outputs.
+* **`run.ps1`**: The native Windows PowerShell equivalent of `run.sh`. It performs the exact same automation but uses native Windows pathing.
 
 ---
 
@@ -41,8 +41,21 @@ bash run.sh run my-first-lab
 .\run.ps1 run my-first-lab
 ```
 
-### 3. Test Your Instance
-Once inside the container shell, use the following command to test your instance and verify that the virtual network hosts can communicate:
+### 3. Connect to a Running Lab (Second Terminal)
+If you need to run secondary commands (like `tcpdump` or `tshark`) while your primary Mininet network is running, open a **new** terminal window on your host machine and run:
+
+**Unix/Mac/Git Bash:**
+```bash
+bash run.sh exec my-first-lab
+```
+
+**Windows PowerShell:**
+```powershell
+.\run.ps1 exec my-first-lab
+```
+
+### 4. Test Your Instance
+Once inside your primary container shell, use the following command to test your instance and verify that the virtual network hosts can communicate:
 
 ```bash
 mn --test pingall
