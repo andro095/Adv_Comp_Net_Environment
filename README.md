@@ -17,32 +17,60 @@ You can manage your Mininet environment using the provided scripts.
 
 ### 1. Build the Image
 Before running any labs, you must build the Docker image. 
-* **Unix/Mac/Git Bash:** `bash run.sh build`
-* **Windows PowerShell:** `.\run.ps1 build`
+
+**Unix/Mac/Git Bash:**
+```bash
+bash run.sh build
+```
+
+**Windows PowerShell:**
+```powershell
+.\run.ps1 build
+```
 
 ### 2. Run a Lab
 When you run a lab, the script will automatically create a local folder named `<lab-name>-output` on your host machine and mount it inside the container at `/home/student/<lab-name>-output`.
-* **Unix/Mac/Git Bash:** `bash run.sh run my-first-lab`
-* **Windows PowerShell:** `.\run.ps1 run my-first-lab`
+
+**Unix/Mac/Git Bash:**
+```bash
+bash run.sh run my-first-lab
+```
+
+**Windows PowerShell:**
+```powershell
+.\run.ps1 run my-first-lab
+```
 
 ### 3. Test Your Instance
 Once inside the container shell, use the following command to test your instance and verify that the virtual network hosts can communicate:
-    mn --test pingall
+
+```bash
+mn --test pingall
+```
 
 *(Note: If the command freezes or drops packets due to host-specific WSL2 kernel limitations, you can bypass the kernel entirely by running `mn --switch ovs,datapath=user --test pingall` instead).*
 
 ### Help Menu
 To see all available commands:
-* **Unix/Mac/Git Bash:** `bash run.sh help`
-* **Windows PowerShell:** `.\run.ps1 help`
+
+**Unix/Mac/Git Bash:**
+```bash
+bash run.sh help
+```
+
+**Windows PowerShell:**
+```powershell
+.\run.ps1 help
+```
 
 ---
 
 ## 🪟 Notes for Windows Users
 
-* **PowerShell Execution Policy:** By default, Windows blocks custom `.ps1` scripts. If `.\run.ps1` fails with a security error, open PowerShell as an Administrator and run:
-  `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`
-  You only need to do this once.
+* **PowerShell Execution Policy:** By default, Windows blocks custom `.ps1` scripts. If the run script fails with a security error, open PowerShell as an Administrator and run this once:
+  ```powershell
+  Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+  ```
 * **Git Bash:** If you prefer not to use PowerShell, you can right-click inside your project folder, select **"Open Git Bash here"**, and use `bash run.sh <command>`. The Bash script automatically handles Windows directory paths (`$PWD`).
 * **Line Endings (CRLF vs LF):** Windows saves files with hidden `\r\n` characters, which crashes Linux bash scripts. This project's `Dockerfile` automatically uses `dos2unix` to fix `entrypoint.sh` during the build process, so you can freely edit the scripts in Windows text editors like VS Code or Notepad without breaking the container.
 
