@@ -1,7 +1,7 @@
 FROM ubuntu:22.04 
 ENV DEBIAN_FRONTEND=noninteractive 
 
-# Added dos2unix to the installation list
+# Install dependencies including the testcontroller and ping
 RUN apt-get update && apt-get install -y \ 
     mininet python3 python3-pip iproute2 \ 
     tshark iperf3 hping3 nmap tcpdump curl nano \
@@ -24,5 +24,8 @@ RUN dos2unix /entrypoint.sh && chmod +x /entrypoint.sh
 
 WORKDIR /home/student 
 
+# --- NEW: Open base directory permissions ---
+RUN chmod -R 777 /home/student
+
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["bash"]
+CMD ["bash"] 
