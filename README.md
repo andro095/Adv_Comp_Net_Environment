@@ -4,90 +4,80 @@ A fully containerized Mininet environment with Open vSwitch and Python data scie
 
 ## 📁 Repository Files
 
-* **`Dockerfile`**: The blueprint for the Mininet image. It uses `ubuntu:22.04` as a base and installs Mininet, Open vSwitch, networking tools (`tshark`, `iperf3`, `tcpdump`, `ping`), and a suite of Python data science libraries (`pandas`, `scikit-learn`, `tensorflow`, etc.). It also uses `dos2unix` to ensure cross-platform script compatibility.
-* **`entrypoint.sh`**: The container's startup script. It safely initializes the Open vSwitch database, spins up the OVS daemons (`ovsdb-server` and `ovs-vswitchd`) in the background, outputs their status, and drops you into a ready-to-use bash shell.
-* **`run.sh`**: A Bash helper script to automate building the image, deploying containers, and connecting to running labs. It automatically detects your operating system and mounts a local volume for your lab outputs.
-* **`run.ps1`**: The native Windows PowerShell equivalent of `run.sh`. It performs the exact same automation but uses native Windows pathing.
+* **`Dockerfile`**: The blueprint for the Mininet image. It uses `ubuntu:22.04` as a base and installs Mininet, Open vSwitch, networking tools (`tshark`, `iperf3`, `tcpdump`, `ping`), and a suite of Python data science libraries.
+* **`entrypoint.sh`**: The container's startup script. It safely initializes the Open vSwitch database, spins up the OVS daemons, creates a dedicated workspace for your lab, and unlocks volume permissions automatically.
+* **`docker-run.sh` & `docker-run.ps1`**: Cross-platform automation CLI scripts to build images, manage containers, and streamline your workflow. 
 
 ---
 
 ## 🚀 How to Use
 
-You can manage your Mininet environment using the provided scripts. 
+You can manage your Mininet environment using the `docker-run` scripts. A central `lab-output` folder will be created on your host machine to safely store and persist all your work across multiple labs.
 
-### 1. Build the Image
-Before running any labs, you must build the Docker image. 
+* **Unix/Mac/Git Bash:** Use `bash docker-run.sh <command>`
+* **Windows PowerShell:** Use `.\docker-run.ps1 <command>`
 
-**Unix/Mac/Git Bash:**
+### Image Management
+
 ```bash
-bash run.sh build
+# Build the default image (mymininet:latest)
+bash docker-run.sh build
+
+# Build a custom named image
+bash docker-run.sh build -i mycustomimage:v1
+
+# Remove an image
+bash docker-run.sh clean
+bash docker-run.sh clean -i mycustomimage:v1
 ```
 
-**Windows PowerShell:**
-```powershell
-.\run.ps1 build
-```
+### Container Management
 
-### 2. Run a Lab
-When you run a lab, the script will automatically create a local folder named `<lab-name>-output` on your host machine and mount it inside the container at `/home/student/<lab-name>-output`.
+When running a lab, the script will automatically create `/home/student/<lab-name>-output` inside the container, backed by the shared `lab-output` folder on your host.
 
-**Unix/Mac/Git Bash:**
 ```bash
-bash run.sh run my-first-lab
+# Start a new lab container
+bash docker-run.sh run lab-1
+
+# Open a secondary shell in an already running container
+bash docker-run.sh shell lab-1
+
+# Check if a container is running
+bash docker-run.sh status lab-1
+
+# View the container's background logs
+bash docker-run.sh logs lab-1
+
+# Stop a running container
+bash docker-run.sh stop lab-1
 ```
 
-**Windows PowerShell:**
-```powershell
-.\run.ps1 run my-first-lab
-```
+### Options
 
-### 3. Connect to a Running Lab (Second Terminal)
-If you need to run secondary commands (like `tcpdump` or `tshark`) while your primary Mininet network is running, open a **new** terminal window on your host machine and run:
+* `-i`, `--image`: Override the default image name and tag (`mymininet:latest`). Available for the `build`, `run`, and `clean` commands. Format must be `<image-name>:<image-tag>`.
 
-**Unix/Mac/Git Bash:**
-```bash
-bash run.sh exec my-first-lab
-```
+### Test Your Instance
 
-**Windows PowerShell:**
-```powershell
-.\run.ps1 exec my-first-lab
-```
-
-### 4. Test Your Instance
 Once inside your primary container shell, use the following command to test your instance and verify that the virtual network hosts can communicate:
 
 ```bash
 mn --test pingall
 ```
 
-*(Note: If the command freezes or drops packets due to host-specific WSL2 kernel limitations, you can bypass the kernel entirely by running `mn --switch ovs,datapath=user --test pingall` instead).*
-
-### Help Menu
-To see all available commands:
-
-**Unix/Mac/Git Bash:**
-```bash
-bash run.sh help
-```
-
-**Windows PowerShell:**
-```powershell
-.\run.ps1 help
-```
+*(Note: If the command freezes or drops packets due to host-specific WSL2 kernel limitations, bypass the kernel by running `mn --switch ovs,datapath=user --test pingall` instead).*
 
 ---
 
 ## 🪟 Notes for Windows Users
 
-* **PowerShell Execution Policy:** By default, Windows blocks custom `.ps1` scripts. If the run script fails with a security error, open PowerShell as an Administrator and run this once:
+* **PowerShell Execution Policy:** By default, Windows blocks custom `.ps1` scripts. If the script fails with a security error, open PowerShell as an Administrator and run this once:
   ```powershell
   Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
   ```
-* **Git Bash:** If you prefer not to use PowerShell, you can right-click inside your project folder, select **"Open Git Bash here"**, and use `bash run.sh <command>`. The Bash script automatically handles Windows directory paths (`$PWD`).
-* **Line Endings (CRLF vs LF):** Windows saves files with hidden `\r\n` characters, which crashes Linux bash scripts. This project's `Dockerfile` automatically uses `dos2unix` to fix `entrypoint.sh` during the build process, so you can freely edit the scripts in Windows text editors like VS Code or Notepad without breaking the container.
+* **Git Bash:** If you prefer not to use PowerShell, right-click inside your project folder, select **"Open Git Bash here"**, and use `bash docker-run.sh`. 
+* **Line Endings:** Windows saves files with hidden `\r\n` characters. This project's `Dockerfile` automatically uses `dos2unix` to fix `entrypoint.sh` during the build process, so you can freely edit the scripts in Windows text editors like VS Code without breaking the container.
 
 ## 🐧 Notes for Unix / Linux / macOS Users
 
-* **No `chmod` required for the helper script:** You can bypass needing to run `chmod +x run.sh` by simply calling it via bash directly (e.g., `bash run.sh run lab1`).
-* **Volume Mounts:** The `run.sh` script automatically uses standard `$(pwd)` to map your current directory seamlessly into the container, ensuring your lab files are saved with correct standard Linux pathing.
+* **No `chmod` required for the helper script:** You can bypass needing to run `chmod +x docker-run.sh` by simply calling it via bash directly (e.g., `bash docker-run.sh run lab1`).
+* **Volume Mounts:** The `docker-run.sh` script automatically uses standard `$(pwd)` to map your current directory seamlessly into the container, ensuring your lab files are saved with correct standard Linux pathing.
