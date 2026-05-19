@@ -32,12 +32,18 @@ ovs-vsctl show
 echo "[*] Controller Location:"
 which ovs-testcontroller
 
-# --- NEW: Force open permissions on all mounted folders ---
-# The '|| true' ensures that if Windows WSL2 blocks the chmod, 
-# the script ignores the error and continues booting smoothly.
+# --- NEW: Dynamic Lab Workspace Setup ---
+if [ -n "$LAB_NAME" ]; then
+    echo "[*] Setting up workspace for lab: $LAB_NAME"
+    mkdir -p "/home/student/${LAB_NAME}-output"
+    # Change into the directory so the bash shell starts here
+    cd "/home/student/${LAB_NAME}-output"
+fi
+# ----------------------------------------
+
+# Force open permissions on all mounted folders
 echo "[*] Unlocking volume permissions..."
 chmod -R 777 /home/student 2>/dev/null || true
-# ----------------------------------------------------------
 
 echo "=== Environment Ready ==="
 

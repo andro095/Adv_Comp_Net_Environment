@@ -23,15 +23,15 @@ function Show-Help {
     Write-Host "Commands:"
     Write-Host "  build            Builds the Docker image ('mymininet:latest') from the local Dockerfile."
     Write-Host "  run <lab-name>   Starts a container for the specified lab. Automatically mounts a"
-    Write-Host "                   local output folder named '<lab-name>-output' to save your work."
+    Write-Host "                   central 'lab-output' folder to save and share work across labs."
     Write-Host "  exec <lab-name>  Opens a new bash shell inside an ALREADY RUNNING lab container."
     Write-Host "                   Useful for running secondary commands (like tcpdump) in a new tab."
     Write-Host "  help, -h, --help Shows this help menu."
     Write-Host ""
     Write-Host "Examples:"
     Write-Host "  .\run.ps1 build"
-    Write-Host "  .\run.ps1 run lab-1"
-    Write-Host "  .\run.ps1 exec lab-1"
+    Write-Host "  .\run.ps1 run lab-2"
+    Write-Host "  .\run.ps1 exec lab-2"
     Write-Host "================================" -ForegroundColor Cyan
 }
 
@@ -53,14 +53,15 @@ function Run-Lab {
 
     # Get the current directory path and format it for Docker's volume mount
     $CurrentDir = $PWD.Path
-    # Convert Windows backslashes to forward slashes for safer Docker compatibility
-    $VolumeMount = "$CurrentDir\$Name-output:/home/student/$Name-output" -replace "\\", "/"
+    
+    # NEW: Map the wrapper 'lab-output' folder directly to /home/student
+    $VolumeMount = "$CurrentDir\lab-output:/home/student" -replace "\\", "/"
     
     Write-Host "[*] Detected Windows PowerShell environment. Using volume mount:" -ForegroundColor DarkGray
     Write-Host "    $VolumeMount" -ForegroundColor DarkGray
 
-    # Execute the Docker run command
-    docker run -it --rm --privileged --name "$Name" -v "$VolumeMount" mymininet:latest
+    # Execute the Docker run command with the LAB_NAME environment variable
+    docker run -it --rm --privileged --name "$Name" -e LAB_NAME="$Name" -v "$VolumeMount" mymininet:latest
 }
 
 function Exec-Lab {

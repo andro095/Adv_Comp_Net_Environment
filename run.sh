@@ -11,15 +11,15 @@ show_help() {
     echo "Commands:"
     echo "  build            Builds the Docker image ('mymininet:latest') from the local Dockerfile."
     echo "  run <lab-name>   Starts a container for the specified lab. Automatically mounts a"
-    echo "                   local output folder named '<lab-name>-output' to save your work."
+    echo "                   central 'lab-output' folder to save and share work across labs."
     echo "  exec <lab-name>  Opens a new bash shell inside an ALREADY RUNNING lab container."
     echo "                   Useful for running secondary commands (like tcpdump) in a new tab."
     echo "  help, -h, --help Shows this help menu."
     echo ""
     echo "Examples:"
     echo "  bash run.sh build"
-    echo "  bash run.sh run lab-1"
-    echo "  bash run.sh exec lab-1"
+    echo "  bash run.sh run lab-2"
+    echo "  bash run.sh exec lab-2"
     echo "================================"
 }
 
@@ -48,13 +48,13 @@ run_lab() {
     case "$OS" in
         CYGWIN*|MINGW*|MSYS*)
             # Windows environments (Git Bash, MSYS2, etc.)
-            echo "[*] Detected Windows environment. Using \${PWD} for volume mount."
-            docker run -it --rm --privileged --name "$lab_name" -v "${PWD}/$lab_name-output:/home/student/$lab_name-output" mymininet:latest
+            echo "[*] Detected Windows environment. Using \${PWD}/lab-output for volume mount."
+            docker run -it --rm --privileged --name "$lab_name" -e LAB_NAME="$lab_name" -v "${PWD}/lab-output:/home/student" mymininet:latest
             ;;
         *)
             # Native Linux, macOS, or WSL2
-            echo "[*] Detected Unix/Linux/WSL environment. Using \$(pwd) for volume mount."
-            docker run -it --rm --privileged --name "$lab_name" -v "$(pwd)/$lab_name-output:/home/student/$lab_name-output" mymininet:latest
+            echo "[*] Detected Unix/Linux/WSL environment. Using \$(pwd)/lab-output for volume mount."
+            docker run -it --rm --privileged --name "$lab_name" -e LAB_NAME="$lab_name" -v "$(pwd)/lab-output:/home/student" mymininet:latest
             ;;
     esac
 }
