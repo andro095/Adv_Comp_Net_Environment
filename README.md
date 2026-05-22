@@ -7,6 +7,7 @@ A fully containerized Mininet environment with Open vSwitch and Python data scie
 * **`Dockerfile`**: The blueprint for the Mininet image. It uses `ubuntu:22.04` as a base and installs Mininet, Open vSwitch, networking tools (`tshark`, `iperf3`, `tcpdump`, `ping`), and a suite of Python data science libraries.
 * **`entrypoint.sh`**: The container's startup script. It safely initializes the Open vSwitch database, spins up the OVS daemons, creates a dedicated workspace for your lab, and unlocks volume permissions automatically.
 * **`docker-run.sh` & `docker-run.ps1`**: Cross-platform automation CLI scripts to build images, manage containers, and streamline your workflow. 
+* **`docker-run.cmd`**: A native Windows batch wrapper that seamlessly forwards commands to the PowerShell script, automatically bypassing local execution policies so you don't have to change your security settings.
 
 ---
 
@@ -15,7 +16,7 @@ A fully containerized Mininet environment with Open vSwitch and Python data scie
 You can manage your Mininet environment using the `docker-run` scripts. A central `lab-output` folder will be created on your host machine to safely store and persist all your work across multiple labs.
 
 * **Unix/Mac/Git Bash:** Use `bash docker-run.sh <command>`
-* **Windows PowerShell:** Use `.\docker-run.ps1 <command>`
+* **Windows (CMD/PowerShell):** Use `docker-run <command>` *(Note: In PowerShell, you may need to type `.\docker-run`)*
 
 ### Image Management
 
@@ -30,6 +31,7 @@ bash docker-run.sh build -i mycustomimage:v1
 bash docker-run.sh clean
 bash docker-run.sh clean -i mycustomimage:v1
 ```
+*(Windows users: replace `bash docker-run.sh` with `docker-run`)*
 
 ### Container Management
 
@@ -51,6 +53,7 @@ bash docker-run.sh logs lab-1
 # Stop a running container
 bash docker-run.sh stop lab-1
 ```
+*(Windows users: replace `bash docker-run.sh` with `docker-run`)*
 
 ### Options
 
@@ -70,11 +73,8 @@ mn --test pingall
 
 ## 🪟 Notes for Windows Users
 
-* **PowerShell Execution Policy:** By default, Windows blocks custom `.ps1` scripts. If the script fails with a security error, open PowerShell as an Administrator and run this once:
-  ```powershell
-  Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-  ```
-* **Git Bash:** If you prefer not to use PowerShell, right-click inside your project folder, select **"Open Git Bash here"**, and use `bash docker-run.sh`. 
+* **The `.cmd` Wrapper:** We have included a `docker-run.cmd` file in this repository. You do **not** need to change your PowerShell Execution Policy. Simply open Command Prompt, Windows Terminal, or PowerShell and type `docker-run <command>`. The wrapper automatically handles the security bypass for you!
+* **Git Bash:** If you prefer a Unix-like experience, you can right-click inside your project folder, select **"Open Git Bash here"**, and use `bash docker-run.sh`. 
 * **Line Endings:** Windows saves files with hidden `\r\n` characters. This project's `Dockerfile` automatically uses `dos2unix` to fix `entrypoint.sh` during the build process, so you can freely edit the scripts in Windows text editors like VS Code without breaking the container.
 
 ## 🐧 Notes for Unix / Linux / macOS Users

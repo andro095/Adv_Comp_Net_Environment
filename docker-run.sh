@@ -118,7 +118,8 @@ case "$COMMAND" in
     shell)
         check_running "$TARGET"
         echo "[*] Connecting to running lab: $TARGET"
-        docker exec -it "$TARGET" bash
+        # NEW: Added the -w flag to force the shell into the specific lab output directory
+        docker exec -it -w "/home/student/${TARGET}-output" "$TARGET" bash
         ;;
     stop)
         check_running "$TARGET"

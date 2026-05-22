@@ -16,7 +16,7 @@ param (
 
 $DEFAULT_IMAGE_NAME = "mymininet"
 $DEFAULT_IMAGE_TAG = "latest"
-$IMAGE_FULL_NAME = "$DEFAULT_IMAGE_NAME:$DEFAULT_IMAGE_TAG"
+$IMAGE_FULL_NAME = "${DEFAULT_IMAGE_NAME}:${DEFAULT_IMAGE_TAG}"
 
 # Handle Image Parameter Logic
 if ($PSBoundParameters.ContainsKey('ImageNameTag')) {
@@ -43,7 +43,7 @@ function Show-Help {
     Write-Host "  help             Shows this help menu."
     Write-Host ""
     Write-Host "Options:"
-    Write-Host "  -i, --image      Specify a custom image name and tag (default: $DEFAULT_IMAGE_NAME:$DEFAULT_IMAGE_TAG)."
+    Write-Host "  -i, --image      Specify a custom image name and tag (default: ${DEFAULT_IMAGE_NAME}:${DEFAULT_IMAGE_TAG})."
     Write-Host ""
     Write-Host "Examples:"
     Write-Host "  .\docker-run.ps1 build"
@@ -83,7 +83,7 @@ switch -Regex ($Action.ToLower()) {
     "^shell$" {
         Check-Running -Name $TargetName
         Write-Host "[*] Connecting to running lab: $TargetName" -ForegroundColor Yellow
-        docker exec -it $TargetName bash
+        docker exec -it -w "/home/student/$TargetName-output" $TargetName bash
     }
     "^stop$" {
         Check-Running -Name $TargetName
