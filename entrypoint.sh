@@ -26,6 +26,8 @@ ovs-vswitchd --pidfile --detach >/dev/null 2>&1
 # 3. Confirm the service is working
 echo "[*] Open vSwitch Status:"
 service openvswitch-switch status
+
+echo "[*] Current OVS Configuration:"
 ovs-vsctl show
 
 # 4. Check for the controller
@@ -35,7 +37,7 @@ which ovs-testcontroller
 # --- NEW: Dynamic Lab Workspace Setup ---
 if [ -n "$LAB_NAME" ]; then
     echo "[*] Setting up workspace for lab: $LAB_NAME"
-    mkdir -p "/home/student/${LAB_NAME}-output"
+    mkdir -p "/home/student/${LAB_NAME}-output/Deliverables"
     # Change into the directory so the bash shell starts here
     cd "/home/student/${LAB_NAME}-output"
 fi
