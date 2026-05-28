@@ -35,7 +35,7 @@ bash docker-run.sh clean -i mycustomimage:v1
 
 ### Container Management
 
-When running a lab, the script will automatically create `/home/student/<lab-name>-output` inside the container, backed by the shared `lab-output` folder on your host.
+When running a lab, the script will automatically create `/home/student/<lab-name>-output` inside the container, backed by the shared `lab-output` folder on your host. For each lab it creates a Deliverables folder to place all your deliverables for each lab.
 
 ```bash
 # Start a new lab container
