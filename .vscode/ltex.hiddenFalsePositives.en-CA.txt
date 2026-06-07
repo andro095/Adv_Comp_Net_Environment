@@ -1,0 +1,1 @@
+{"rule":"POSSESSIVE_APOSTROPHE","sentence":"^\\QFor each lab it creates a Deliverables folder to place all your deliverables for each lab.\\E$"}

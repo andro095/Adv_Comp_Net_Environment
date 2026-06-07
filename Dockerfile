@@ -13,7 +13,10 @@ RUN ln -s /usr/bin/ovs-testcontroller /usr/bin/ovs-controller
 
 # Install Python packages
 RUN pip3 install scikit-learn pandas numpy matplotlib \ 
-    scapy tensorflow keras seaborn joblib 
+    scapy tensorflow keras seaborn joblib ryu eventlet==0.33.3
+
+# Patch eventlet to restore ALREADY_HANDLED for Ryu compatibility on Python 3.10
+RUN python3 -c "import eventlet.wsgi; open(eventlet.wsgi.__file__, 'a').write('\nALREADY_HANDLED = object()\n')" 
 
 # Setup user
 RUN useradd -m student && echo 'student:student' | chpasswd 

@@ -91,12 +91,20 @@ run_lab() {
 
     echo "[*] Starting lab: $TARGET using image: $IMAGE_FULL_NAME"
     OS=$(uname -s)
+    
+    # Define extra volume mounts for the final project workspace
+    EXTRA_MOUNTS=""
+    if [ "$TARGET" = "final-project" ]; then
+        EXTRA_MOUNTS="-v /Users/andro095/Documents/dev/UoG/S26/ACN_Final_Project:/home/student/final-project-output"
+        echo "[*] Mount detected: binding /Users/andro095/Documents/dev/UoG/S26/ACN_Final_Project to /home/student/final-project-output"
+    fi
+
     case "$OS" in
         CYGWIN*|MINGW*|MSYS*)
-            docker run -it --rm --privileged --name "$TARGET" -e LAB_NAME="$TARGET" -v "${PWD}/lab-output:/home/student" "$IMAGE_FULL_NAME"
+            docker run -it --rm --privileged --name "$TARGET" -e LAB_NAME="$TARGET" -v "${PWD}/lab-output:/home/student" $EXTRA_MOUNTS "$IMAGE_FULL_NAME"
             ;;
         *)
-            docker run -it --rm --privileged --name "$TARGET" -e LAB_NAME="$TARGET" -v "$(pwd)/lab-output:/home/student" "$IMAGE_FULL_NAME"
+            docker run -it --rm --privileged --name "$TARGET" -e LAB_NAME="$TARGET" -v "$(pwd)/lab-output:/home/student" $EXTRA_MOUNTS "$IMAGE_FULL_NAME"
             ;;
     esac
 }
